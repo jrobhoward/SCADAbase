@@ -1,0 +1,123 @@
+BASEDIR=$(dirname $0)
+
+NANO_NAME=SB0001
+NANO_KERNEL=SB0001
+NANO_PMAKE="make -j6"
+
+NANO_MEDIASIZE=1953125
+NANO_IMAGES=1
+NANO_INIT_IMG2=0
+
+NANO_SECTS=32
+NANO_HEADS=64
+
+NANO_BOOT2CFG="-D"
+
+NANO_LABEL="SB0001"
+
+NANO_MODULES="opensolaris zfs dtrace lkey if_lagg crypto geom/geom_eli"
+
+CONF_INSTALL='
+WITHOUT_CPP=YES
+WITHOUT_INSTALLLIB=YES
+WITHOUT_TOOLCHAIN=YES
+'
+
+CONF_WORLD='
+CFLAGS+=-fno-omit-frame-pointer
+STRIP=
+WITH_CTF=1
+WITHOUT_ACPI=YES
+WITHOUT_ATM=YES
+WITHOUT_AUDIT=YES
+WITHOUT_AUTHPF=YES
+WITHOUT_BIND=YES
+WITHOUT_BLUETOOTH=YES
+WITHOUT_CALENDAR=YES
+WITHOUT_CVS=YES
+WITHOUT_DICT=YES
+WITHOUT_DYNAMICROOT=YES
+WITHOUT_EXAMPLES=YES
+WITHOUT_FLOPPY=YES
+WITHOUT_FORTRAN=YES
+WITHOUT_FREEBSD_UPDATE=YES
+WITHOUT_GAMES=YES
+WITHOUT_GCOV=YES
+WITHOUT_GPIB=YES
+WITHOUT_GROFF=YES
+WITHOUT_HTML=YES
+WITHOUT_HYPERV=YES
+WITHOUT_I4B=YES
+WITHOUT_ICONV=YES
+WITHOUT_INFO=YES
+WITHOUT_IPFILTER=YES
+WITHOUT_IPX=YES
+WITHOUT_KERBEROS=YES
+WITHOUT_LIB32=YES
+WITHOUT_LOCALES=YES
+WITHOUT_LPR=YES
+WITHOUT_MAILWRAPPER=YES
+WITHOUT_MAN=YES
+WITHOUT_NCP=YES
+WITHOUT_NDIS=YES
+WITHOUT_NETCAT=YES
+WITHOUT_NIS=YES
+WITHOUT_NLS=YES
+WITHOUT_NS_CACHING=YES
+WITHOUT_OBJC=YES
+WITHOUT_PC_SYSINSTALL=YES
+WITHOUT_PKGBOOTSTRAP=YES
+WITHOUT_PORTSNAP=YES
+WITHOUT_PPP=YES
+WITHOUT_RCMDS=YES
+WITHOUT_RCS=YES
+WITHOUT_RESCUE=YES
+WITHOUT_SENDMAIL=YES
+WITHOUT_SHAREDOCS=YES
+WITHOUT_SSP=YES
+WITHOUT_SVNLITE=YES
+WITHOUT_SYSCONS=YES
+WITHOUT_SYSINSTALL=YES
+WITHOUT_TELNET=YES
+WITHOUT_USB=YES
+WITHOUT_WIRELESS=YES
+WITHOUT_WIRELESS_SUPPORT=YES
+WITHOUT_ZONEINFO=YES
+'
+
+cust_nobeastie() (
+    touch ${NANO_WORLDDIR}/boot/loader.conf
+    echo "autoboot_delay=\"2\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "beastie_disable=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "dtraceall_load=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "geom_eli_load=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "hw.vga.textmode=\"1\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "lkey_load=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "zfs_load=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+    echo "if_lagg_load=\"YES\"" >> ${NANO_WORLDDIR}/boot/loader.conf
+
+    sed -i "" -e "/cfg/s/rw/rw,noatime/" ${NANO_WORLDDIR}/etc/fstab
+
+    cp ${BASEDIR}/rc.local ${NANO_WORLDDIR}/etc/rc.local
+    chmod 655 ${NANO_WORLDDIR}/etc/rc.local
+
+    ## replace with install command
+    cp /usr/src/priv/ssh_keys/ssh_host_rsa_key \
+       /usr/src/priv/ssh_keys/ssh_host_rsa_key.pub \
+       ${NANO_WORLDDIR}/etc/ssh/
+    chmod 600 ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key
+    chmod 644 ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key.pub
+    chown root:wheel ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key
+    chown root:wheel ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key.pub
+
+    cp /usr/src/priv/pam_otp/lib/security/pam_google_authenticator.so \
+      ${NANO_WORLDDIR}/usr/lib/
+    chown root:wheel ${NANO_WORLDDIR}/usr/lib/pam_google_authenticator.so
+    chmod 444 ${NANO_WORLDDIR}/usr/lib/pam_google_authenticator.so
+
+    rm ${NANO_WORLDDIR}/etc/motd
+    touch ${NANO_WORLDDIR}/etc/motd
+)
+
+customize_cmd cust_nobeastie
+customize_cmd cust_allow_ssh_root

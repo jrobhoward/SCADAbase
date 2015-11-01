@@ -124,12 +124,16 @@ NANO_RAM_ETCSIZE=10240
 # Size of the /tmp+/var ramdisk in 512 bytes sectors
 NANO_RAM_TMPVARSIZE=10240
 
+# Size of the /opt ramdisk (2G)
+# TODO: JRH - may remove this later, depending on loc for erlang distribution
+NANO_RAM_OPTSIZE=524288
+
 # Media geometry, only relevant if bios doesn't understand LBA.
 NANO_SECTS=63
 NANO_HEADS=16
 
-# boot0 flags/options and configuration
-NANO_BOOT0CFG="-o packet -s 1 -m 3"
+# boot0 flags/options and configuration, set timeout to ~2 seconds (18.2 ticks / sec)
+NANO_BOOT0CFG="-o packet -s 1 -m 3 -t 36"
 NANO_BOOTLOADER="boot/boot0sio"
 
 # boot2 flags/options
@@ -404,7 +408,7 @@ setup_nanobsd ( ) (
 		)
 	fi
 
-	for d in var etc
+	for d in var etc opt
 	do
 		# link /$d under /conf
 		# we use hard links so we have them both places.
@@ -416,6 +420,7 @@ setup_nanobsd ( ) (
 
 	echo "$NANO_RAM_ETCSIZE" > conf/base/etc/md_size
 	echo "$NANO_RAM_TMPVARSIZE" > conf/base/var/md_size
+	echo "$NANO_RAM_OPTSIZE" > conf/base/opt/md_size
 
 	# pick up config files from the special partition
 	echo "mount -o ro /dev/${NANO_DRIVE}s3" > conf/default/etc/remount
@@ -425,6 +430,34 @@ setup_nanobsd ( ) (
 	ln -s var/tmp tmp
 
 	) > ${NANO_OBJ}/_.dl 2>&1
+)
+
+setup_sb() (
+
+	pprint 2 "run sb setup"
+
+	(
+        cd ${NANO_WORLDDIR}
+
+        mkdir opt
+        mkdir sbtank
+
+        echo 'ifconfig_em0="up"' >> conf/base/etc/rc.conf
+        echo 'ifconfig_em1="up"' >> conf/base/etc/rc.conf
+        echo 'cloned_interfaces="lagg0"' >> conf/base/etc/rc.conf
+
+        ## TODO: JRH - lagg0 doesn't behave as expected failing in virtualbox.  find out why.
+        ##       Eventually, change from static IP to DHCP.
+        ##echo 'ifconfig_lagg0="laggproto failover laggport em0 laggport em1  DHCP"' >> conf/base/etc/rc.conf
+        echo 'ifconfig_lagg0="laggproto failover laggport em0 laggport em1  192.168.1.199/24"' >> conf/base/etc/rc.conf
+        echo 'defaultrouter="192.168.1.1"' >> conf/base/etc/rc.conf
+        echo 'nameserver 192.168.1.1' >> conf/base/etc/resolv.conf
+
+        echo 'sshd_enable="YES"' >> conf/base/etc/rc.conf
+        echo 'ntpd_enable="YES"' >> conf/base/etc/rc.conf
+        echo 'ntpdate_enable="YES"' >> conf/base/etc/rc.conf
+
+	) >> ${NANO_OBJ}/_.dl 2>&1
 )
 
 setup_nanobsd_etc ( ) (
@@ -1118,6 +1151,7 @@ fi
 
 run_customize
 setup_nanobsd
+setup_sb
 prune_usr
 run_late_customize
 if $do_image ; then

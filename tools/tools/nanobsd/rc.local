@@ -1,0 +1,45 @@
+
+##
+## TODO: JRH - for now, this script just imports/mounts ZFS for internal disks
+##   eventually:
+##     ** intelligently detect if disk is in use (i.e. prevent wiping out data)
+##     ** enable pf rules
+##     ** increment securelevel
+##     ** start SB basic config (accept EULA, config net?, setup disk, join cluster, view/config NTP)
+##     ** upgrade, if code version is newer than last runup
+##       ** unpack from encrypted GELI
+##     ** revert snapshot and downgrade, if code version is lower than last runup
+##
+
+
+notbeginswith() { case $2 in $1*) false;; *) true;; esac; }
+
+zpool import sbtank > /dev/null 2>&1
+zpool list sbtank > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+  ALL_DISKS=`sysctl -a kern.disks | cut -d ':' -f 2`
+  ZFS_DISKS=""
+  for D in `echo ${ALL_DISKS}`; do
+    ls /dev/${D}s* > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      if notbeginswith cd ${D}; then
+        ZFS_DISKS="$ZFS_DISKS $D"
+      fi
+    fi
+  done
+
+  zpool create sbtank ${ZFS_DISKS}
+else
+  EXISTING_ZFS_DISKS=`zpool history sbtank | grep "create sbtank" | awk 'BEGIN {FS="create sbtank "} {print $2}'`  
+  NEW_ZFS_DISKS=""
+fi
+
+
+##
+## Add default user/group
+##
+pw groupadd -n notroot -g 5000
+pw useradd -n notroot -u 5000 -g notroot -G wheel -d /nonexistent -s /usr/sbin/nologin -h - -c "Service user"
+
+#sysctl kern.securelevel=2
