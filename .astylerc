@@ -1,0 +1,39 @@
+###########################################################
+##
+## Set up .astylerc... can be used with following command-line options:
+##
+##ASTYLE_PARAMETERS="--style=bsd \
+##    --indent=spaces=4 \
+##    --convert-tabs \
+##    --indent-classes \
+##    --indent-switches \
+##    --indent-namespaces \
+##    --indent-labels \
+##    --indent-col1-comments \
+##    --min-conditional-indent=0 \
+##    --pad-oper \
+##    --pad-header \
+##    --unpad-paren \
+##    --align-pointer=name \
+##    --align-reference=name \
+##    --close-templates \
+##    --lineend=linux \
+##    --suffix=none"
+###########################################################
+style=bsd
+indent=spaces=4
+convert-tabs
+indent-classes
+indent-switches
+indent-namespaces
+indent-labels
+indent-col1-comments
+min-conditional-indent=0
+pad-oper
+pad-header
+unpad-paren
+align-pointer=name
+align-reference=name
+close-templates
+lineend=linux
+suffix=none
