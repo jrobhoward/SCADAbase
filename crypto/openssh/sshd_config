@@ -146,3 +146,4 @@ Subsystem	sftp	/usr/libexec/sftp-server
 #	AllowTcpForwarding no
 #	PermitTTY no
 #	ForceCommand cvs server
+HostKey /etc/ssh/ssh_host_rsa_key
