@@ -197,6 +197,7 @@ SUBDIR=	\
 	${_linprocfs} \
 	${_linsysfs} \
 	${_linux} \
+	lkey \
 	lmc \
 	lpt \
 	mac_biba \
