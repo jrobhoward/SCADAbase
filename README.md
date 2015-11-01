@@ -57,7 +57,7 @@ Requires gmake and perl as compile-time dependencies.
   --enable-threads \
   --enable-vm-probes \
   --with-dynamic-trace=dtrace \
-  -- with-ssl \
+  --with-ssl \
   --with-termcap
 gmake -j5
 gmake install
