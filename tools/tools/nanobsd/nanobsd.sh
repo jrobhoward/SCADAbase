@@ -134,7 +134,7 @@ NANO_HEADS=16
 
 # boot0 flags/options and configuration, set timeout to ~2 seconds (18.2 ticks / sec)
 NANO_BOOT0CFG="-o packet -s 1 -m 3 -t 36"
-NANO_BOOTLOADER="boot/boot0sio"
+NANO_BOOTLOADER="boot/boot0"
 
 # boot2 flags/options
 # default force serial console
