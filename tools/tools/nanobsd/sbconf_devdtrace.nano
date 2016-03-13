@@ -110,7 +110,7 @@ cust_nobeastie() (
     chown root:wheel ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key
     chown root:wheel ${NANO_WORLDDIR}/etc/ssh/ssh_host_rsa_key.pub
 
-    cp /usr/src/priv/pam_otp/lib/security/pam_google_authenticator.so \
+    cp /usr/local/lib/pam_google_authenticator.so \
       ${NANO_WORLDDIR}/usr/lib/
     chown root:wheel ${NANO_WORLDDIR}/usr/lib/pam_google_authenticator.so
     chmod 444 ${NANO_WORLDDIR}/usr/lib/pam_google_authenticator.so
